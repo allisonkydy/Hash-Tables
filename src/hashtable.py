@@ -51,7 +51,22 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        # find an index using the key
+        index = self._hash_mod(key)
+
+        # create a new linked list node using key and value
+        new_node = LinkedPair(key, value)
+
+        # insert the node into the linked list in storage at generated index
+        cur = self.storage[index]
+        if cur is None:
+            self.storage[index] = new_node
+            return
+        while cur.next is not None:
+            cur = cur.next
+        cur.next = new_node
+
+        return
 
 
 
@@ -74,7 +89,19 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        # find the index using the given key
+        index = self._hash_mod(key)
+
+        # traverse the linked list at that index in storage until keys match
+        cur = self.storage[index]
+        while cur is not None:
+            if cur.key == key:
+                # return value at given key
+                return cur.value
+            cur = cur.next
+
+        # if key not found, return None
+        return None
 
 
     def resize(self):
