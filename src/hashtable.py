@@ -57,15 +57,22 @@ class HashTable:
         # create a new linked list node using key and value
         new_node = LinkedPair(key, value)
 
-        # insert the node into the linked list in storage at generated index
+        # traverse the linked list in storage at generated index
         cur = self.storage[index]
+        # if no list exists, new node becomes the head
         if cur is None:
             self.storage[index] = new_node
             return
-        while cur.next is not None:
+        prev = None
+        while cur is not None:
+            # if key in list matches given key, overwrite value
+            if cur.key == key:
+                cur.value = value
+                return
+            prev = cur
             cur = cur.next
-        cur.next = new_node
-
+        # if reach end of list, append new node
+        prev.next = new_node
         return
 
 
