@@ -138,7 +138,24 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        # create a new hash table with double the capacity
+        resized = HashTable(self.capacity * 2)
+
+        # for each linked list in storage
+        for i in range(self.capacity):
+            # check if there's a list at this index
+            if self.storage[i] is not None:
+                # for each node in the linked list
+                cur = self.storage[i]
+                while cur is not None:
+                    # insert new key/value pair into resized list
+                    resized.insert(cur.key, cur.value)
+                    cur = cur.next
+
+        self.capacity = resized.capacity
+        self.storage = resized.storage
+
+        return
 
 
 
