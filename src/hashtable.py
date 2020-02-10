@@ -78,8 +78,28 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        # find the index using the given key
+        index = self._hash_mod(key)
 
+        # traverse the linked list in storage at that index
+        prev = None
+        cur = self.storage[index]
+        while cur is not None:
+            # if key is found, remove node from list
+            if cur.key == key:
+                # if node is head of list, point storage to next value
+                if prev is None:
+                    self.storage[index] = cur.next
+                # otherwise, connect prev node to next node
+                else:
+                    prev.next = cur.next
+                return
+            prev = cur
+            cur = cur.next
+
+        # if key not found, print a warning
+        print("Error: key not found")
+        return
 
     def retrieve(self, key):
         '''
