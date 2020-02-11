@@ -15,7 +15,8 @@ class HashTable:
     def __init__(self, capacity):
         self.capacity = capacity  # Number of buckets in the hash table
         self.storage = [None] * capacity
-
+        self.size = 0
+        self.is_resized = False
 
     def _hash(self, key):
         '''
@@ -32,7 +33,10 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
-        pass
+        hash = 5381
+        for c in key:
+            hash = ((hash << 5) + hash) + ord(c)
+        return hash % self.capacity
 
 
     def _hash_mod(self, key):
@@ -73,8 +77,13 @@ class HashTable:
             cur = cur.next
         # if reach end of list, append new node
         prev.next = new_node
+        self.size += 1
+        # find load factor
+        lf = self.size / self.capacity
+        # if load factor is greater than 0.7, resize hash table
+        if lf > 0.7:
+            self.resize(2)
         return
-
 
 
     def remove(self, key):
@@ -100,6 +109,12 @@ class HashTable:
                 # otherwise, connect prev node to next node
                 else:
                     prev.next = cur.next
+                self.size -= 1
+
+                # if load factor is less than 0.2, resize hash table
+                lf = self.size / self.capacity
+                if self.is_resized and lf < 0.2:
+                    self.resize(0.5)
                 return
             prev = cur
             cur = cur.next
@@ -131,31 +146,32 @@ class HashTable:
         return None
 
 
-    def resize(self):
+    def resize(self, factor):
         '''
         Doubles the capacity of the hash table and
         rehash all key/value pairs.
 
         Fill this in.
         '''
-        # create a new hash table with double the capacity
-        resized = HashTable(self.capacity * 2)
+        old_storage = self.storage
+        self.capacity = int(self.capacity * factor)
+        self.storage = [None] * self.capacity
 
         # for each linked list in storage
-        for i in range(self.capacity):
-            # check if there's a list at this index
-            if self.storage[i] is not None:
-                # for each node in the linked list
-                cur = self.storage[i]
-                while cur is not None:
-                    # insert new key/value pair into resized list
-                    resized.insert(cur.key, cur.value)
-                    cur = cur.next
+        for i in range(len(old_storage)):
+            # for each node in the linked list
+            cur = old_storage[i]
+            while cur is not None:
+                # insert new key/value pair into resized list
+                self.insert(cur.key, cur.value)
+                cur = cur.next
 
-        self.capacity = resized.capacity
-        self.storage = resized.storage
+        # if hasn't been resized before and just grew larger, 
+        # tell hash table that it's been resized past its initial size
+        # remove() checks for is_resized to avoid unnecesary shrinking
+        if not self.is_resized and factor > 1:
+            self.is_resized = True
 
-        return
 
 
 
@@ -175,7 +191,7 @@ if __name__ == "__main__":
 
     # Test resizing
     old_capacity = len(ht.storage)
-    ht.resize()
+    ht.resize(2)
     new_capacity = len(ht.storage)
 
     print(f"\nResized from {old_capacity} to {new_capacity}.\n")
@@ -186,3 +202,10 @@ if __name__ == "__main__":
     print(ht.retrieve("line_3"))
 
     print("")
+
+    print(ht._hash_djb2('hello'))
+    print(ht._hash_djb2('hello'))
+    print(ht._hash_djb2('hi'))
+    print(ht._hash_djb2('world'))
+    print(ht._hash_djb2('bing'))
+    print(ht._hash_djb2('bong'))
